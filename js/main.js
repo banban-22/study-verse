@@ -35,6 +35,7 @@ function updateDateTime() {
 function initializeFocusMode() {
     const focusModeBtn = document.getElementById('focusModeBtn');
     const focusOverlay = document.getElementById('focusOverlay');
+    const exitFocusBtn = document.getElementById('exitFocusBtn');
     const body = document.body;
     
     // Load saved focus mode state
@@ -48,6 +49,24 @@ function initializeFocusMode() {
             disableFocusMode();
         } else {
             enableFocusMode();
+        }
+    });
+
+    exitFocusBtn.addEventListener('click', () => {
+        if (body.classList.contains('focus-mode')) {
+            disableFocusMode();
+        }
+    });
+
+    focusOverlay.addEventListener('click', () => {
+        if (body.classList.contains('focus-mode')) {
+            disableFocusMode();
+        }
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && body.classList.contains('focus-mode')) {
+            disableFocusMode();
         }
     });
     

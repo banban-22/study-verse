@@ -7,9 +7,14 @@ class StudyTimer {
         this.isRunning = false;
         this.currentTag = null;
         this.sessionStartTime = null;
+        this.tags = this.loadTags();
         
         // Load saved data
         this.loadData();
+        if (this.currentTag && !this.tags.includes(this.currentTag)) {
+            this.tags.push(this.currentTag);
+            this.saveTags();
+        }
         
         // DOM elements
         this.display = document.getElementById('timerDisplay');
@@ -19,6 +24,10 @@ class StudyTimer {
         this.todayTimeDisplay = document.getElementById('todayTime');
         this.sessionCountDisplay = document.getElementById('sessionCount');
         this.selectedTagDisplay = document.getElementById('selectedTag');
+        this.tagInput = document.getElementById('tagInput');
+        this.addTagBtn = document.getElementById('addTagBtn');
+        this.tagsContainer = document.getElementById('sessionTags');
+        this.tagsEmpty = document.getElementById('tagsEmpty');
         
         // Session tags
         this.initializeTagSelector();
@@ -62,35 +71,76 @@ class StudyTimer {
             this.sessionCount = 0;
         }
     }
+
+    loadTags() {
+        const savedTags = localStorage.getItem('studyTimerTags');
+        return savedTags ? JSON.parse(savedTags) : [];
+    }
+
+    saveTags() {
+        localStorage.setItem('studyTimerTags', JSON.stringify(this.tags));
+    }
     
     initializeTagSelector() {
-        const tagButtons = document.querySelectorAll('.tag-btn');
-        tagButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                // Remove active class from all buttons
-                tagButtons.forEach(b => b.classList.remove('active'));
-                
-                // Add active class to clicked button
-                btn.classList.add('active');
-                
-                // Set current tag
-                this.currentTag = btn.getAttribute('data-tag');
-                this.selectedTagDisplay.textContent = this.currentTag;
-                
-                // Save
-                this.saveData();
-            });
+        this.renderTags();
+        this.addTagBtn.addEventListener('click', () => this.addCustomTag());
+        this.tagInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                this.addCustomTag();
+            }
         });
-        
-        // Display saved tag
-        if (this.currentTag) {
-            this.selectedTagDisplay.textContent = this.currentTag;
-            tagButtons.forEach(btn => {
-                if (btn.getAttribute('data-tag') === this.currentTag) {
-                    btn.classList.add('active');
-                }
-            });
+    }
+
+    renderTags() {
+        this.tagsContainer.innerHTML = '';
+
+        if (this.tags.length === 0) {
+            this.tagsEmpty.style.display = 'block';
+        } else {
+            this.tagsEmpty.style.display = 'none';
         }
+
+        this.tags.forEach(tag => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'tag-btn';
+            button.textContent = tag;
+            button.setAttribute('data-tag', tag);
+
+            if (this.currentTag === tag) {
+                button.classList.add('active');
+            }
+
+            button.addEventListener('click', () => this.selectTag(tag));
+            this.tagsContainer.appendChild(button);
+        });
+
+        this.updateSelectedTagDisplay();
+    }
+
+    addCustomTag() {
+        const tag = this.tagInput.value.trim();
+        if (!tag) return;
+
+        if (!this.tags.includes(tag)) {
+            this.tags.push(tag);
+            this.saveTags();
+        }
+
+        this.tagInput.value = '';
+        this.selectTag(tag);
+    }
+
+    selectTag(tag) {
+        if (this.currentTag === tag) {
+            this.currentTag = null;
+        } else {
+            this.currentTag = tag;
+        }
+
+        this.saveData();
+        this.renderTags();
     }
     
     saveData() {
@@ -137,14 +187,12 @@ class StudyTimer {
             this.startBtn.disabled = false;
             this.pauseBtn.disabled = true;
             
+            this.updateStats();
             this.saveData();
         }
     }
     
     reset() {
-        const shouldReset = confirm('Reset timer? This will save your current session time.');
-        if (!shouldReset) return;
-        
         // Add current session to today's time and contribution graph
         if (this.elapsedTime > 0) {
             this.todayTime += this.elapsedTime;
@@ -178,6 +226,7 @@ class StudyTimer {
         if (this.isRunning) {
             this.elapsedTime = Date.now() - this.startTime;
             this.updateDisplay();
+            this.updateStats();
             
             // Save every minute
             if (Math.floor(this.elapsedTime / 1000) % 60 === 0) {
@@ -196,11 +245,16 @@ class StudyTimer {
     }
     
     updateStats() {
-        const totalHours = Math.floor(this.todayTime / 3600000);
-        const totalMinutes = Math.floor((this.todayTime % 3600000) / 60000);
+        const totalTime = this.todayTime + this.elapsedTime;
+        const totalHours = Math.floor(totalTime / 3600000);
+        const totalMinutes = Math.floor((totalTime % 3600000) / 60000);
         
         this.todayTimeDisplay.textContent = `${totalHours}h ${totalMinutes}m`;
         this.sessionCountDisplay.textContent = this.sessionCount;
+    }
+
+    updateSelectedTagDisplay() {
+        this.selectedTagDisplay.textContent = this.currentTag || 'No tag selected';
     }
 }
 
