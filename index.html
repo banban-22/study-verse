@@ -46,16 +46,17 @@
                 </div>
                 <!-- Session Tags -->
                 <div class="session-tags">
-                    <p class="tags-label">Session Tag:</p>
-                    <div class="tags-container" id="sessionTags">
-                        <button class="tag-btn" data-tag="財務諸表論">財務諸表論</button>
-                        <button class="tag-btn" data-tag="簿記論">簿記論</button>
-                        <button class="tag-btn" data-tag="理論">理論</button>
-                        <button class="tag-btn" data-tag="計算">計算</button>
-                        <button class="tag-btn" data-tag="past exam">Past Exam</button>
-                        <button class="tag-btn" data-tag="review">Review</button>
-                        <button class="tag-btn" data-tag="memorize">Memorize</button>
+                    <div class="tags-header">
+                        <p class="tags-label">Session Tag:</p>
+                        <div class="tag-input">
+                            <input type="text" id="tagInput" placeholder="Add a custom tag...">
+                            <button id="addTagBtn" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-plus"></i> Add Tag
+                            </button>
+                        </div>
                     </div>
+                    <div class="tags-container" id="sessionTags"></div>
+                    <div class="tags-empty" id="tagsEmpty">No tags yet. Add one above.</div>
                     <div class="selected-tag" id="selectedTag">No tag selected</div>
                 </div>
                 
@@ -68,6 +69,9 @@
                     </button>
                     <button id="resetBtn" class="btn btn-danger">
                         <i class="fas fa-redo"></i> Reset
+                    </button>
+                    <button id="exitFocusBtn" class="btn btn-secondary focus-exit-btn">
+                        <i class="fas fa-eye-slash"></i> Exit Focus
                     </button>
                 </div>
             </div>
