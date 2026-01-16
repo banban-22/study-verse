@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Study Space - Focus & Productivity</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Focus Mode Overlay -->
+    <div id="focusOverlay" class="focus-overlay"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <h1><i class="fas fa-book-reader"></i> My Study Space</h1>
+            <div class="header-controls">
+                <button id="focusModeBtn" class="focus-mode-btn" title="Toggle Focus Mode">
+                    <i class="fas fa-eye"></i> Focus Mode
+                </button>
+                <div class="datetime" id="datetime"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Grid Layout -->
+    <main class="main-container">
+        <!-- Timer Section -->
+        <section class="panel timer-panel">
+            <div class="panel-header">
+                <h2><i class="fas fa-clock"></i> Study Timer</h2>
+            </div>
+            <div class="panel-content">
+                <div class="timer-display" id="timerDisplay">00:00:00</div>
+                <div class="timer-stats">
+                    <div class="stat">
+                        <span class="stat-label">Today</span>
+                        <span class="stat-value" id="todayTime">0h 0m</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Sessions</span>
+                        <span class="stat-value" id="sessionCount">0</span>
+                    </div>
+                </div>
+                <!-- Session Tags -->
+                <div class="session-tags">
+                    <p class="tags-label">Session Tag:</p>
+                    <div class="tags-container" id="sessionTags">
+                        <button class="tag-btn" data-tag="財務諸表論">財務諸表論</button>
+                        <button class="tag-btn" data-tag="簿記論">簿記論</button>
+                        <button class="tag-btn" data-tag="理論">理論</button>
+                        <button class="tag-btn" data-tag="計算">計算</button>
+                        <button class="tag-btn" data-tag="past exam">Past Exam</button>
+                        <button class="tag-btn" data-tag="review">Review</button>
+                        <button class="tag-btn" data-tag="memorize">Memorize</button>
+                    </div>
+                    <div class="selected-tag" id="selectedTag">No tag selected</div>
+                </div>
+                
+                <div class="timer-controls">
+                    <button id="startBtn" class="btn btn-primary">
+                        <i class="fas fa-play"></i> Start
+                    </button>
+                    <button id="pauseBtn" class="btn btn-secondary" disabled>
+                        <i class="fas fa-pause"></i> Pause
+                    </button>
+                    <button id="resetBtn" class="btn btn-danger">
+                        <i class="fas fa-redo"></i> Reset
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Todo List Section -->
+        <section class="panel todo-panel">
+            <div class="panel-header">
+                <h2><i class="fas fa-tasks"></i> Study Tasks</h2>
+            </div>
+            <div class="panel-content">
+                <div class="todo-input-container">
+                    <input type="text" id="todoInput" class="todo-input" placeholder="Add a study task...">
+                    <button id="addTodoBtn" class="btn btn-add">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <div class="todo-list" id="todoList">
+                    <!-- Todo items will be added here -->
+                </div>
+                <div class="todo-footer">
+                    <span id="todoCount">0 tasks</span>
+                    <button id="clearCompletedBtn" class="btn-text">Clear completed</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- YouTube Section -->
+        <section class="panel youtube-panel">
+            <div class="panel-header">
+                <h2><i class="fab fa-youtube"></i> Study With Me</h2>
+            </div>
+            <div class="panel-content">
+                <div class="video-container">
+                    <iframe id="youtubePlayer"
+                        src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=0&mute=0"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen>
+                    </iframe>
+                </div>
+                <div class="video-controls">
+                    <input type="text" id="videoUrlInput" class="video-input" placeholder="Paste YouTube URL or ID...">
+                    <button id="changeVideoBtn" class="btn btn-secondary btn-sm">
+                        <i class="fas fa-sync"></i> Change
+                    </button>
+                </div>
+                <div class="video-suggestions">
+                    <p class="suggestions-title">Quick Select (ASMR & Quiet):</p>
+                    <div class="suggestion-buttons">
+                        <button class="btn-suggestion" data-video="MFJ9WqiN5Fc">Library ASMR</button>
+                        <button class="btn-suggestion" data-video="1Zt9l8tdneQ">Quiet Study</button>
+                        <button class="btn-suggestion" data-video="lTRiuFIWV54">Silent Study</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contribution Graph Section -->
+        <section class="panel contribution-panel">
+            <div class="panel-header">
+                <h2><i class="fas fa-chart-line"></i> Study Streak & Stats</h2>
+                <button id="viewStatsBtn" class="btn-header-action">
+                    <i class="fas fa-chart-pie"></i> Detailed Stats
+                </button>
+            </div>
+            <div class="panel-content">
+                <div class="streak-info">
+                    <div class="streak-card">
+                        <div class="streak-icon">🔥</div>
+                        <div class="streak-data">
+                            <span class="streak-number" id="streakCount">0</span>
+                            <span class="streak-label">Day Streak</span>
+                        </div>
+                    </div>
+                    <div class="streak-card">
+                        <div class="streak-icon">📅</div>
+                        <div class="streak-data">
+                            <span class="streak-number" id="totalDays">0</span>
+                            <span class="streak-label">Total Days</span>
+                        </div>
+                    </div>
+                    <div class="streak-card">
+                        <div class="streak-icon">⏱️</div>
+                        <div class="streak-data">
+                            <span class="streak-number" id="totalHours">0</span>
+                            <span class="streak-label">Total Hours</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contribution-graph" id="contributionGraph">
+                    <!-- Graph will be generated here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Assistants Section -->
+        <section class="panel ai-panel">
+            <div class="panel-header">
+                <h2><i class="fas fa-robot"></i> AI Assistants</h2>
+            </div>
+            <div class="panel-content">
+                <p class="ai-description">Quick access to AI assistants for study questions:</p>
+                <div class="ai-links">
+                    <a href="https://chat.openai.com" target="_blank" class="ai-link chatgpt">
+                        <div class="ai-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div class="ai-info">
+                            <h3>ChatGPT</h3>
+                            <p>Ask questions, get explanations, brainstorm ideas</p>
+                        </div>
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                    <a href="https://aistudio.google.com" target="_blank" class="ai-link gemini">
+                        <div class="ai-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="ai-info">
+                            <h3>Google AI Studio</h3>
+                            <p>Access Gemini for research and learning</p>
+                        </div>
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                </div>
+                <div class="quick-prompts">
+                    <p class="prompts-title">Quick Study Prompts:</p>
+                    <div class="prompt-chips">
+                        <span class="chip" data-prompt="Explain this concept in simple terms:">Explain Simply</span>
+                        <span class="chip" data-prompt="Create a study plan for:">Study Plan</span>
+                        <span class="chip" data-prompt="Quiz me on:">Quiz Me</span>
+                        <span class="chip" data-prompt="Summarize:">Summarize</span>
+                    </div>
+                </div>
+                
+                <!-- Structured AI Help Button -->
+                <div class="ai-structured-help">
+                    <button id="structuredAiBtn" class="btn-structured-ai">
+                        <i class="fas fa-comments"></i> I'm stuck. Explain like I'm studying for an exam.
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>Stay focused. Stay productive. 📚 Press <strong>Focus Mode</strong> to minimize distractions.</p>
+    </footer>
+
+    <!-- Structured AI Help Modal -->
+    <div id="structuredAiModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-lightbulb"></i> Structured Study Help</h3>
+                <button class="modal-close" id="closeModalBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-description">Fill out this template to get focused help from AI assistants:</p>
+                
+                <div class="form-group">
+                    <label>Question:</label>
+                    <textarea id="aiQuestion" rows="3" placeholder="What are you trying to understand or solve?"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>What I tried:</label>
+                    <textarea id="aiTried" rows="3" placeholder="What approaches or methods have you already attempted?"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>What I need:</label>
+                    <textarea id="aiNeed" rows="2" placeholder="What specific help or clarification do you need?"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Output format:</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="outputFormat" value="bullet" checked>
+                            <span>Bullet points</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="outputFormat" value="steps">
+                            <span>Step-by-step</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="outputFormat" value="example">
+                            <span>With examples</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button id="copyToClipboardBtn" class="btn btn-primary">
+                        <i class="fas fa-copy"></i> Copy Template
+                    </button>
+                    <button id="openChatGPTBtn" class="btn btn-secondary">
+                        <i class="fas fa-external-link-alt"></i> Open ChatGPT
+                    </button>
+                    <button id="openGeminiBtn" class="btn btn-secondary">
+                        <i class="fas fa-external-link-alt"></i> Open Gemini
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stats Modal -->
+    <div id="statsModal" class="modal">
+        <div class="modal-content modal-wide">
+            <div class="modal-header">
+                <h3><i class="fas fa-chart-pie"></i> Detailed Study Statistics</h3>
+                <button class="modal-close" id="closeStatsModalBtn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="stats-grid" id="statsContent">
+                    <!-- Stats will be generated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/timer.js"></script>
+    <script src="js/todo.js"></script>
+    <script src="js/youtube.js"></script>
+    <script src="js/contribution.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
