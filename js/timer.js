@@ -7,6 +7,7 @@ class StudyTimer {
         this.isRunning = false;
         this.currentTag = null;
         this.sessionStartTime = null;
+        this.currentDate = new Date().toDateString();
         this.tags = this.loadTags();
         
         // Load saved data
@@ -52,19 +53,32 @@ class StudyTimer {
         if (savedData) {
             const data = JSON.parse(savedData);
             const today = new Date().toDateString();
+            const parseNumber = (value, fallback = 0) => {
+                const parsed = Number(value);
+                return Number.isFinite(parsed) ? parsed : fallback;
+            };
             
             // Reset if new day
             if (data.date !== today) {
+                this.currentDate = today;
                 this.todayTime = 0;
                 this.sessionCount = 0;
+                this.elapsedTime = 0;
+                this.isRunning = false;
+                this.startTime = 0;
+                this.sessionStartTime = null;
             } else {
-                this.todayTime = data.todayTime || 0;
-                this.sessionCount = data.sessionCount || 0;
-                this.elapsedTime = data.elapsedTime || 0;
+                this.currentDate = data.date || today;
+                this.todayTime = parseNumber(data.todayTime);
+                this.sessionCount = Math.max(0, Math.floor(parseNumber(data.sessionCount)));
+                this.elapsedTime = parseNumber(data.elapsedTime);
                 this.isRunning = data.isRunning || false;
-                this.startTime = data.startTime || 0;
+                this.startTime = parseNumber(data.startTime);
                 this.currentTag = data.currentTag || null;
-                this.sessionStartTime = data.sessionStartTime || null;
+                const parsedSessionStartTime = data.sessionStartTime ? new Date(data.sessionStartTime) : null;
+                this.sessionStartTime = parsedSessionStartTime && !Number.isNaN(parsedSessionStartTime.getTime())
+                    ? parsedSessionStartTime
+                    : null;
             }
         } else {
             this.todayTime = 0;
@@ -145,7 +159,7 @@ class StudyTimer {
     
     saveData() {
         const data = {
-            date: new Date().toDateString(),
+            date: this.currentDate,
             todayTime: this.todayTime,
             sessionCount: this.sessionCount,
             elapsedTime: this.elapsedTime,
@@ -159,6 +173,7 @@ class StudyTimer {
     
     start() {
         if (!this.isRunning) {
+            this.ensureCurrentDay();
             this.isRunning = true;
             this.startTime = Date.now() - this.elapsedTime;
             this.sessionStartTime = new Date();
@@ -193,15 +208,17 @@ class StudyTimer {
     }
     
     reset() {
+        this.ensureCurrentDay();
         // Add current session to today's time and contribution graph
         if (this.elapsedTime > 0) {
             this.todayTime += this.elapsedTime;
             this.sessionCount++;
             
             // Record in contribution graph
-            if (window.contributionGraph && this.sessionStartTime) {
+            if (window.contributionGraph) {
+                const sessionStartTime = this.sessionStartTime || new Date();
                 window.contributionGraph.recordSession(
-                    this.sessionStartTime,
+                    sessionStartTime,
                     this.elapsedTime,
                     this.currentTag
                 );
@@ -224,6 +241,7 @@ class StudyTimer {
     
     tick() {
         if (this.isRunning) {
+            this.ensureCurrentDay();
             this.elapsedTime = Date.now() - this.startTime;
             this.updateDisplay();
             this.updateStats();
@@ -255,6 +273,25 @@ class StudyTimer {
 
     updateSelectedTagDisplay() {
         this.selectedTagDisplay.textContent = this.currentTag || 'No tag selected';
+    }
+
+    ensureCurrentDay() {
+        const today = new Date().toDateString();
+        if (this.currentDate !== today) {
+            this.currentDate = today;
+            this.todayTime = 0;
+            this.sessionCount = 0;
+
+            if (this.isRunning) {
+                this.startTime = Date.now();
+                this.elapsedTime = 0;
+                this.sessionStartTime = new Date();
+            } else {
+                this.elapsedTime = 0;
+                this.startTime = 0;
+                this.sessionStartTime = null;
+            }
+        }
     }
 }
 
