@@ -64,7 +64,10 @@ class StudyTimer {
                 this.isRunning = data.isRunning || false;
                 this.startTime = data.startTime || 0;
                 this.currentTag = data.currentTag || null;
-                this.sessionStartTime = data.sessionStartTime || null;
+                const parsedSessionStartTime = data.sessionStartTime ? new Date(data.sessionStartTime) : null;
+                this.sessionStartTime = parsedSessionStartTime && !Number.isNaN(parsedSessionStartTime.getTime())
+                    ? parsedSessionStartTime
+                    : null;
             }
         } else {
             this.todayTime = 0;
@@ -199,9 +202,10 @@ class StudyTimer {
             this.sessionCount++;
             
             // Record in contribution graph
-            if (window.contributionGraph && this.sessionStartTime) {
+            if (window.contributionGraph) {
+                const sessionStartTime = this.sessionStartTime || new Date();
                 window.contributionGraph.recordSession(
-                    this.sessionStartTime,
+                    sessionStartTime,
                     this.elapsedTime,
                     this.currentTag
                 );
