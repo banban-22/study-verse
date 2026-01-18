@@ -7,6 +7,7 @@ class ContributionGraph {
         this.totalDaysEl = document.getElementById('totalDays');
         this.totalHoursEl = document.getElementById('totalHours');
         
+        this.syncWithTimerData();
         this.render();
         this.updateStats();
     }
@@ -18,6 +19,26 @@ class ContributionGraph {
     
     saveData() {
         localStorage.setItem('studyContributionData', JSON.stringify(this.data));
+    }
+
+    syncWithTimerData() {
+        const savedTimerData = localStorage.getItem('studyTimerData');
+        if (!savedTimerData) {
+            return;
+        }
+
+        const timerData = JSON.parse(savedTimerData);
+        const todayKey = this.getDateKey(new Date());
+        const totalFromTimer = (timerData.todayTime || 0) + (timerData.isRunning ? (timerData.elapsedTime || 0) : 0);
+
+        if (!this.data[todayKey]) {
+            this.data[todayKey] = { totalTime: 0, sessions: [], tags: {} };
+        }
+
+        if (totalFromTimer > this.data[todayKey].totalTime) {
+            this.data[todayKey].totalTime = totalFromTimer;
+            this.saveData();
+        }
     }
     
     // Record a study session

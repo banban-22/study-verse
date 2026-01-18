@@ -80,24 +80,43 @@
             </div>
         </section>
 
-        <!-- Todo List Section -->
-        <section class="panel todo-panel">
+        <!-- Daily Schedule Section -->
+        <section class="panel schedule-panel">
             <div class="panel-header">
-                <h2><i class="fas fa-tasks"></i> Study Tasks</h2>
+                <h2><i class="fas fa-calendar-check"></i> Daily Schedule</h2>
             </div>
             <div class="panel-content">
-                <div class="todo-input-container">
-                    <input type="text" id="todoInput" class="todo-input" placeholder="Add a study task...">
-                    <button id="addTodoBtn" class="btn btn-add">
-                        <i class="fas fa-plus"></i>
-                    </button>
+                <div class="schedule-controls">
+                    <label for="scheduleType">Today is:</label>
+                    <select id="scheduleType" class="schedule-select">
+                        <option value="office">🏢 Office Day</option>
+                        <option value="remote">💻 Remote Day</option>
+                        <option value="weekend">🌿 Holiday / Weekend</option>
+                    </select>
                 </div>
-                <div class="todo-list" id="todoList">
-                    <!-- Todo items will be added here -->
+
+                <div class="schedule-focus">
+                    <div class="schedule-focus-card">
+                        <p class="schedule-focus-label">Now</p>
+                        <p class="schedule-focus-title" id="currentScheduleTitle">Select a schedule</p>
+                        <p class="schedule-focus-time" id="currentScheduleTime">—</p>
+                        <p class="schedule-focus-purpose" id="currentSchedulePurpose"></p>
+                    </div>
+                    <div class="schedule-focus-card subtle">
+                        <p class="schedule-focus-label">Next</p>
+                        <p class="schedule-focus-title" id="nextScheduleTitle">—</p>
+                        <p class="schedule-focus-time" id="nextScheduleTime">—</p>
+                        <p class="schedule-focus-purpose" id="nextSchedulePurpose"></p>
+                    </div>
                 </div>
-                <div class="todo-footer">
-                    <span id="todoCount">0 tasks</span>
-                    <button id="clearCompletedBtn" class="btn-text">Clear completed</button>
+
+                <div class="schedule-list" id="scheduleList">
+                    <!-- Schedule entries will render here -->
+                </div>
+
+                <div class="schedule-guidelines">
+                    <h3>Task Rules</h3>
+                    <div class="schedule-guidelines-grid" id="scheduleGuidelines"></div>
                 </div>
             </div>
         </section>
@@ -110,7 +129,7 @@
             <div class="panel-content">
                 <div class="video-container">
                     <iframe id="youtubePlayer"
-                        src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=0&mute=0"
+                        src="https://www.youtube.com/embed/Kr7eiJz0kvc?autoplay=0&mute=0"
                         frameborder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowfullscreen>
@@ -121,14 +140,6 @@
                     <button id="changeVideoBtn" class="btn btn-secondary btn-sm">
                         <i class="fas fa-sync"></i> Change
                     </button>
-                </div>
-                <div class="video-suggestions">
-                    <p class="suggestions-title">Quick Select (ASMR & Quiet):</p>
-                    <div class="suggestion-buttons">
-                        <button class="btn-suggestion" data-video="MFJ9WqiN5Fc">Library ASMR</button>
-                        <button class="btn-suggestion" data-video="1Zt9l8tdneQ">Quiet Study</button>
-                        <button class="btn-suggestion" data-video="lTRiuFIWV54">Silent Study</button>
-                    </div>
                 </div>
             </div>
         </section>
@@ -304,9 +315,9 @@
     </div>
 
     <script src="js/timer.js"></script>
-    <script src="js/todo.js"></script>
     <script src="js/youtube.js"></script>
     <script src="js/contribution.js"></script>
+    <script src="js/schedule.js"></script>
     <script src="js/main.js"></script>
 </body>
 </html>
