@@ -4,20 +4,12 @@ class YouTubePlayer {
         this.player = document.getElementById('youtubePlayer');
         this.videoUrlInput = document.getElementById('videoUrlInput');
         this.changeVideoBtn = document.getElementById('changeVideoBtn');
-        this.suggestionButtons = document.querySelectorAll('.btn-suggestion');
+        this.defaultVideoId = 'Kr7eiJz0kvc';
         
         // Event listeners
         this.changeVideoBtn.addEventListener('click', () => this.changeVideo());
         this.videoUrlInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.changeVideo();
-        });
-        
-        // Suggestion buttons
-        this.suggestionButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const videoId = btn.getAttribute('data-video');
-                this.loadVideo(videoId);
-            });
         });
         
         // Load saved video
@@ -28,6 +20,8 @@ class YouTubePlayer {
         const savedVideoId = localStorage.getItem('youtubeVideoId');
         if (savedVideoId) {
             this.loadVideo(savedVideoId);
+        } else {
+            this.loadVideo(this.defaultVideoId);
         }
     }
     

@@ -196,47 +196,13 @@ class StudyTimer {
     
     pause() {
         if (this.isRunning) {
-            this.isRunning = false;
-            clearInterval(this.timerInterval);
-            
-            this.startBtn.disabled = false;
-            this.pauseBtn.disabled = true;
-            
-            this.updateStats();
-            this.saveData();
+            this.finalizeSession();
         }
     }
     
     reset() {
         this.ensureCurrentDay();
-        // Add current session to today's time and contribution graph
-        if (this.elapsedTime > 0) {
-            this.todayTime += this.elapsedTime;
-            this.sessionCount++;
-            
-            // Record in contribution graph
-            if (window.contributionGraph) {
-                const sessionStartTime = this.sessionStartTime || new Date();
-                window.contributionGraph.recordSession(
-                    sessionStartTime,
-                    this.elapsedTime,
-                    this.currentTag
-                );
-            }
-        }
-        
-        this.isRunning = false;
-        clearInterval(this.timerInterval);
-        this.elapsedTime = 0;
-        this.startTime = 0;
-        this.sessionStartTime = null;
-        
-        this.startBtn.disabled = false;
-        this.pauseBtn.disabled = true;
-        
-        this.updateDisplay();
-        this.updateStats();
-        this.saveData();
+        this.finalizeSession();
     }
     
     tick() {
@@ -292,6 +258,35 @@ class StudyTimer {
                 this.sessionStartTime = null;
             }
         }
+    }
+
+    finalizeSession() {
+        if (this.elapsedTime > 0) {
+            this.todayTime += this.elapsedTime;
+            this.sessionCount++;
+
+            if (window.contributionGraph) {
+                const sessionStartTime = this.sessionStartTime || new Date();
+                window.contributionGraph.recordSession(
+                    sessionStartTime,
+                    this.elapsedTime,
+                    this.currentTag
+                );
+            }
+        }
+
+        this.isRunning = false;
+        clearInterval(this.timerInterval);
+        this.elapsedTime = 0;
+        this.startTime = 0;
+        this.sessionStartTime = null;
+
+        this.startBtn.disabled = false;
+        this.pauseBtn.disabled = true;
+
+        this.updateDisplay();
+        this.updateStats();
+        this.saveData();
     }
 }
 
