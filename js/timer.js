@@ -195,9 +195,20 @@ class StudyTimer {
     }
     
     pause() {
-        if (this.isRunning) {
-            this.finalizeSession();
+        if (!this.isRunning) {
+            return;
         }
+
+        this.isRunning = false;
+        clearInterval(this.timerInterval);
+        this.timerInterval = null;
+
+        this.startBtn.disabled = false;
+        this.pauseBtn.disabled = true;
+
+        this.updateDisplay();
+        this.updateStats();
+        this.saveData();
     }
     
     reset() {
