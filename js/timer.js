@@ -204,18 +204,8 @@ class StudyTimer {
             return;
         }
 
-        if (this.elapsedTime > 0) {
-            this.todayTime += this.elapsedTime;
-
-            if (window.contributionGraph) {
-                const sessionStartTime = this.sessionStartTime || new Date();
-                window.contributionGraph.recordSession(
-                    sessionStartTime,
-                    this.elapsedTime,
-                    this.currentTag
-                );
-            }
-        }
+        const sessionElapsed = this.elapsedTime;
+        const sessionStartTime = this.sessionStartTime || new Date();
 
         this.isRunning = false;
         clearInterval(this.timerInterval);
@@ -226,6 +216,18 @@ class StudyTimer {
 
         this.startBtn.disabled = false;
         this.pauseBtn.disabled = true;
+
+        if (sessionElapsed > 0) {
+            this.todayTime += sessionElapsed;
+
+            if (window.contributionGraph && typeof window.contributionGraph.recordSession === 'function') {
+                window.contributionGraph.recordSession(
+                    sessionStartTime,
+                    sessionElapsed,
+                    this.currentTag
+                );
+            }
+        }
 
         this.updateDisplay();
         this.updateStats();
