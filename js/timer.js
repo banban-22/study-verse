@@ -21,7 +21,6 @@ class StudyTimer {
         this.display = document.getElementById('timerDisplay');
         this.startBtn = document.getElementById('startBtn');
         this.pauseBtn = document.getElementById('pauseBtn');
-        this.resetBtn = document.getElementById('resetBtn');
         this.todayTimeDisplay = document.getElementById('todayTime');
         this.sessionCountDisplay = document.getElementById('sessionCount');
         this.selectedTagDisplay = document.getElementById('selectedTag');
@@ -36,11 +35,12 @@ class StudyTimer {
         // Event listeners
         this.startBtn.addEventListener('click', () => this.start());
         this.pauseBtn.addEventListener('click', () => this.pause());
-        this.resetBtn.addEventListener('click', () => this.reset());
         
         // Initialize display
         this.updateDisplay();
         this.updateStats();
+
+        this.scheduleMidnightReset();
         
         // Check if timer was running before page reload
         if (this.isRunning) {
@@ -175,8 +175,10 @@ class StudyTimer {
         if (!this.isRunning) {
             this.ensureCurrentDay();
             this.isRunning = true;
-            this.startTime = Date.now() - this.elapsedTime;
+            this.elapsedTime = 0;
+            this.startTime = Date.now();
             this.sessionStartTime = new Date();
+            this.sessionCount += 1;
             this.timerInterval = setInterval(() => this.tick(), 100);
             
             this.startBtn.disabled = true;
@@ -191,6 +193,9 @@ class StudyTimer {
             this.timerInterval = setInterval(() => this.tick(), 100);
             this.startBtn.disabled = true;
             this.pauseBtn.disabled = false;
+            this.elapsedTime = Date.now() - this.startTime;
+            this.updateDisplay();
+            this.updateStats();
         }
     }
     
@@ -199,9 +204,25 @@ class StudyTimer {
             return;
         }
 
+        if (this.elapsedTime > 0) {
+            this.todayTime += this.elapsedTime;
+
+            if (window.contributionGraph) {
+                const sessionStartTime = this.sessionStartTime || new Date();
+                window.contributionGraph.recordSession(
+                    sessionStartTime,
+                    this.elapsedTime,
+                    this.currentTag
+                );
+            }
+        }
+
         this.isRunning = false;
         clearInterval(this.timerInterval);
         this.timerInterval = null;
+        this.elapsedTime = 0;
+        this.startTime = 0;
+        this.sessionStartTime = null;
 
         this.startBtn.disabled = false;
         this.pauseBtn.disabled = true;
@@ -209,11 +230,6 @@ class StudyTimer {
         this.updateDisplay();
         this.updateStats();
         this.saveData();
-    }
-    
-    reset() {
-        this.ensureCurrentDay();
-        this.finalizeSession();
     }
     
     tick() {
@@ -255,45 +271,39 @@ class StudyTimer {
     ensureCurrentDay() {
         const today = new Date().toDateString();
         if (this.currentDate !== today) {
-            this.currentDate = today;
-            this.todayTime = 0;
-            this.sessionCount = 0;
-
-            if (this.isRunning) {
-                this.startTime = Date.now();
-                this.elapsedTime = 0;
-                this.sessionStartTime = new Date();
-            } else {
-                this.elapsedTime = 0;
-                this.startTime = 0;
-                this.sessionStartTime = null;
-            }
+            this.handleMidnightReset();
         }
     }
 
-    finalizeSession() {
-        if (this.elapsedTime > 0) {
-            this.todayTime += this.elapsedTime;
-            this.sessionCount++;
-
-            if (window.contributionGraph) {
-                const sessionStartTime = this.sessionStartTime || new Date();
-                window.contributionGraph.recordSession(
-                    sessionStartTime,
-                    this.elapsedTime,
-                    this.currentTag
-                );
-            }
+    scheduleMidnightReset() {
+        if (this.midnightTimeout) {
+            clearTimeout(this.midnightTimeout);
         }
 
-        this.isRunning = false;
-        clearInterval(this.timerInterval);
-        this.elapsedTime = 0;
-        this.startTime = 0;
-        this.sessionStartTime = null;
+        const now = new Date();
+        const nextMidnight = new Date(now);
+        nextMidnight.setHours(24, 0, 0, 0);
+        const msUntilMidnight = nextMidnight - now;
 
-        this.startBtn.disabled = false;
-        this.pauseBtn.disabled = true;
+        this.midnightTimeout = setTimeout(() => {
+            this.handleMidnightReset();
+            this.scheduleMidnightReset();
+        }, msUntilMidnight);
+    }
+
+    handleMidnightReset() {
+        this.currentDate = new Date().toDateString();
+        this.todayTime = 0;
+        this.sessionCount = 0;
+        this.elapsedTime = 0;
+
+        if (this.isRunning) {
+            this.startTime = Date.now();
+            this.sessionStartTime = new Date();
+        } else {
+            this.startTime = 0;
+            this.sessionStartTime = null;
+        }
 
         this.updateDisplay();
         this.updateStats();
